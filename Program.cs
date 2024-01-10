@@ -1,4 +1,8 @@
+using CodeSnippetAPI.Data;
+using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddDbContext<CodeSnippetAPIContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("CodeSnippetAPIContext") ?? throw new InvalidOperationException("Connection string 'CodeSnippetAPIContext' not found.")));
 
 // Add services to the container.
 
