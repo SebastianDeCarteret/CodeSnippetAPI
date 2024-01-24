@@ -4,6 +4,7 @@ using CodeSnippetAPI.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CodeSnippetAPI.Migrations
 {
     [DbContext(typeof(CodeSnippetAPIContext))]
-    partial class CodeSnippetAPIContextModelSnapshot : ModelSnapshot
+    [Migration("20240124131445_AddSnippetsDbSet")]
+    partial class AddSnippetsDbSet
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -38,14 +41,14 @@ namespace CodeSnippetAPI.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("UserId")
+                    b.Property<int?>("UserId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Snippet");
+                    b.ToTable("Snippets");
                 });
 
             modelBuilder.Entity("CodeSnippetAPI.Models.User", b =>
@@ -73,9 +76,7 @@ namespace CodeSnippetAPI.Migrations
                 {
                     b.HasOne("CodeSnippetAPI.Models.User", null)
                         .WithMany("Snippets")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("UserId");
                 });
 
             modelBuilder.Entity("CodeSnippetAPI.Models.User", b =>

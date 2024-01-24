@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+﻿using CodeSnippetAPI.Data;
+using CodeSnippetAPI.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using CodeSnippetAPI.Data;
-using CodeSnippetAPI.Models;
 
 namespace CodeSnippetAPI.Controllers
 {
@@ -23,23 +18,67 @@ namespace CodeSnippetAPI.Controllers
 
         // GET: api/Users
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<User>>> GetUser()
+        public async Task<ActionResult<IEnumerable<UserDto>>> GetUsers()
         {
-            return await _context.User.ToListAsync();
+            List<User> foundUsers = await _context.User.Include(user => user.Snippets).ToListAsync();
+            List<UserDto> foundUsersDto = [];
+
+            foreach (var user in foundUsers)
+            {
+                List<SnippetDto> snippetDtos = [];
+
+                user.Snippets.ForEach(s =>
+                {
+                    var snippetDto = new SnippetDto()
+                    {
+                        Language = s.Language,
+                        Code = s.Code
+                    };
+                    snippetDtos.Add(snippetDto);
+                });
+                var userDto = new UserDto()
+                {
+                    Id = user.Id,
+                    Snippets = snippetDtos,
+                };
+                foundUsersDto.Add(userDto);
+            }
+
+            return Ok(foundUsersDto);
         }
 
         // GET: api/Users/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<User>> GetUser(int id)
+        public async Task<ActionResult<UserDto>> GetUserSnippets(int id)
         {
-            var user = await _context.User.FindAsync(id);
+            var foundUsers = await _context.User.Include(user => user.Snippets).ToListAsync();
+            var user = foundUsers[id - 1];
+
 
             if (user == null)
             {
                 return NotFound();
             }
 
-            return user;
+            List<SnippetDto> snippetDtos = [];
+
+            user.Snippets.ForEach(s =>
+            {
+                var snippetDto = new SnippetDto()
+                {
+                    Language = s.Language,
+                    Code = s.Code
+                };
+                snippetDtos.Add(snippetDto);
+            });
+
+            var userDto = new UserDto()
+            {
+                Id = user.Id,
+                Snippets = snippetDtos,
+            };
+
+            return userDto;
         }
 
         // PUT: api/Users/5
